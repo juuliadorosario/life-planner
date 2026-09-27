@@ -2,11 +2,11 @@ import { getStorage } from '../client'
 
 /**
  * Remove every piece of demo content and keep the structure: subjects (names
- * only), areas, finance categories, dashboard layout, photos, settings and
+ * only, unless `removeSubjects`), areas, finance categories, dashboard layout, photos, settings and
  * saved workout videos. The same clean-up a new user wants before filling in
  * their own life.
  */
-export async function startEmpty(): Promise<void> {
+export async function startEmpty(options: { removeSubjects?: boolean } = {}): Promise<void> {
   const statements = [
     'DELETE FROM workout_exercises WHERE workout_id IN (SELECT id FROM workouts WHERE video_id IS NULL)',
     'DELETE FROM workouts WHERE video_id IS NULL',
@@ -34,6 +34,7 @@ export async function startEmpty(): Promise<void> {
     'UPDATE finance_categories SET monthly_budget = NULL',
     "DELETE FROM settings WHERE key IN ('quickNotes', 'countdown')",
   ]
+  if (options.removeSubjects) statements.push('DELETE FROM subjects')
   const storage = getStorage()
   for (const sql of statements) await storage.query(sql, [], 'run')
 }

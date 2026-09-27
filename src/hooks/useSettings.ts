@@ -13,6 +13,10 @@ export interface AppSettings {
   coverStyle: 'camel' | 'black' | 'stone' | 'cream' | 'pink'
   /** Apple Calendar calendars the user chose not to show. */
   appleHiddenCalendars: string[]
+  /** Areas the user doesn't use; hidden from the sidebar. */
+  hiddenAreas: string[]
+  /** First-run setup finished (or skipped). */
+  onboarded: boolean
 }
 
 export function useSettings(): AppSettings {
@@ -28,11 +32,13 @@ export function useSettings(): AppSettings {
     reading: (data?.reading as AppSettings['reading']) ?? { title: 'Atomic Habits', author: 'James Clear' },
     coverStyle: (data?.coverStyle as AppSettings['coverStyle']) ?? 'black',
     appleHiddenCalendars: (data?.appleHiddenCalendars as string[]) ?? [],
+    hiddenAreas: (data?.hiddenAreas as string[]) ?? [],
+    onboarded: Boolean(data?.onboarded),
   }
 }
 
 export function useSetSetting() {
-  return useDbMutation(({ key, value }: { key: keyof AppSettings; value: unknown }) => setSetting(key, value))
+  return useDbMutation(({ key, value }: { key: keyof AppSettings | 'hiddenAreas'; value: unknown }) => setSetting(key, value))
 }
 
 export function useMoney() {

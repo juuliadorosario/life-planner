@@ -18,3 +18,7 @@ export async function getSetting<T>(key: string): Promise<T | undefined> {
   const row = await db().select().from(settings).where(eq(settings.key, key)).get()
   return row?.value as T | undefined
 }
+
+export async function deleteSetting(key: string): Promise<void> {
+  await db().delete(settings).where(eq(settings.key, key))
+}

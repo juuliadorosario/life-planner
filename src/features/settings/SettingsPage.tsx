@@ -12,6 +12,7 @@ import { AppleCalendarSettings } from '@/features/calendar/AppleCalendarConnect'
 import { COVER_STYLES, type CoverStyle } from '@/features/study/SubjectCover'
 import { getStorage, resetDatabase } from '@/db/client'
 import { startEmpty } from '@/db/repositories/cleanup'
+import { deleteSetting } from '@/db/repositories/settings'
 import { queryClient } from '@/hooks/data'
 import { useSetSetting, useSettings } from '@/hooks/useSettings'
 import { cn } from '@/lib/utils'
@@ -85,6 +86,22 @@ export function SettingsPage() {
         <Section title="Profile">
           <Row label="Your name"><TextSetting settingKey="userName" value={settings.userName} placeholder="Name" /></Row>
           <Row label="Startup name"><TextSetting settingKey="startupName" value={settings.startupName} placeholder="Startup" /></Row>
+          <Row label="Areas in the menu">
+            <div className="flex flex-wrap justify-end gap-1.5">
+              {['study', 'startup', 'health', 'finance'].map((a) => {
+                const on = !settings.hiddenAreas.includes(a)
+                return (
+                  <button
+                    key={a}
+                    onClick={() => set.mutate({ key: 'hiddenAreas', value: on ? [...settings.hiddenAreas, a] : settings.hiddenAreas.filter((x) => x !== a) })}
+                    className={cn('h-7 rounded-full px-3 text-[12.5px] capitalize transition-colors', on ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground')}
+                  >
+                    {a}
+                  </button>
+                )
+              })}
+            </div>
+          </Row>
           <Row label="Currency">
             <div className="flex rounded-lg bg-muted p-0.5">
               {['EUR', 'USD', 'GBP'].map((c) => (
@@ -175,6 +192,19 @@ export function SettingsPage() {
           <Row label="Location"><code className="rounded-md bg-muted px-2 py-1 text-[12px]">{storage.location}</code></Row>
           <Row label="Backup">
             <Button variant="outline" size="sm" onClick={exportBackup} disabled={!storage.exportBytes}>Export database</Button>
+          </Row>
+          <Row label="Setup">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                await deleteSetting('onboarded')
+                await queryClient.invalidateQueries()
+                window.location.reload()
+              }}
+            >
+              Run setup again
+            </Button>
           </Row>
           <Row label="Start empty">
             {confirmEmpty ? (

@@ -47,9 +47,11 @@ You can also run it in a browser for a quick look (`npm run dev` → http://loca
 
 ## Make it yours
 
-The app starts with demo data so it doesn't look empty. When you're ready, clear it with *Settings → Data → Remove demo content* and fill in your own.
+The first time you open it, a short setup asks for your name, which areas you use (the rest is hidden from the menu), your photos, and connects Apple Calendar, Spotify and your startup's links. You choose to start with example data or empty. Run it again any time from *Settings → Data → Run setup again*.
 
-For photos, your name and your own app name/icon, use a personal folder. It's git-ignored, so you can keep pulling updates without mixing in your stuff:
+Everything else is edited in place: click any text, hover any photo space to add a picture, and use *Customize* on Home to arrange widgets.
+
+If you build it yourself and want photos, defaults or your own app name/icon baked in, use a personal folder. It's git-ignored, so you can keep pulling updates without mixing in your stuff:
 
 1. Create `src/personal/` and copy `src/personal.example.ts` to `src/personal/index.ts`.
 2. Put photos in `src/personal/photos/` and point slots at them (`'home.banner.0': 'builtin:beach'` for `photos/beach.jpg`). Photos can also be added from inside the app — hover any photo space.

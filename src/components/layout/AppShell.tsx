@@ -2,7 +2,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { useUI } from '@/app/ui-state'
 import { useAppleCalendarSync } from '@/features/calendar/AppleCalendarConnect'
+import { Onboarding } from '@/features/onboarding/Onboarding'
 import { CommandPalette } from '@/features/search/CommandPalette'
+import { getAllSettings } from '@/db/repositories/settings'
+import { useDbQuery } from '@/hooks/data'
 import { QuickCapture } from '@/features/capture/QuickCapture'
 import { TaskDialogs } from '@/features/tasks/TaskDialogs'
 import { CreateDialogs } from '@/features/shared/CreateDialogs'
@@ -20,6 +23,10 @@ function readCollapsed() {
 export function AppShell() {
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const { setPaletteOpen, setCaptureOpen, openNewTask } = useUI()
+  // First run: settings loaded and no `onboarded` flag yet.
+  const { data: rawSettings } = useDbQuery(['settings'], getAllSettings)
+  const [setupDone, setSetupDone] = useState(false)
+  const showSetup = !!rawSettings && !rawSettings.onboarded && !setupDone
   useAppleCalendarSync()
   const navigate = useNavigate()
   const location = useLocation()
@@ -60,6 +67,7 @@ export function AppShell() {
       <QuickCapture />
       <TaskDialogs />
       <CreateDialogs />
+      {showSetup && <Onboarding onClose={() => setSetupDone(true)} />}
     </div>
   )
 }

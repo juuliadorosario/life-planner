@@ -47,7 +47,7 @@ function NavRow({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
 
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const { setPaletteOpen, setCaptureOpen } = useUI()
-  const { userName } = useSettings()
+  const { userName, hiddenAreas } = useSettings()
   const native = isTauri()
 
   return (
@@ -106,7 +106,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       </div>
 
       <nav className={cn('mt-4 flex flex-1 flex-col overflow-y-auto', collapsed ? 'px-2.5' : 'px-3')}>
-        {NAV_GROUPS.map((group, i) => (
+        {NAV_GROUPS.map((all) => all.filter((item) => !hiddenAreas.includes(item.to.slice(1)))).filter((g) => g.length).map((group, i) => (
           <div key={i} className={cn('flex flex-col gap-0.5', i > 0 && 'mt-3 border-t border-sidebar-border pt-3')}>
             {group.map((item) => (
               <NavRow key={item.to} item={item} collapsed={collapsed} />
