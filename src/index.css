@@ -1,0 +1,370 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/archivo/standard.css";
+@import "@fontsource-variable/outfit";
+@import "@fontsource/pinyon-script/400.css";
+@import "@fontsource/dm-mono/400.css";
+@import "@fontsource/dm-mono/500.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * LifeOS design tokens.
+ * Black and white: white paper, near-black ink, greys for structure.
+ * Photos carry the colour. Red is reserved for what needs attention.
+ */
+:root {
+  --background: #f7f7f7;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #ffffff;
+  --primary-soft: #efefef;
+  --secondary: #f1f1f1;
+  --secondary-foreground: #111111;
+  --muted: #f2f2f2;
+  --muted-foreground: #767676;
+  --faint: #ababab;
+  --accent: #f2f2f2;
+  --accent-foreground: #111111;
+  --destructive: #b42318;
+  --border: #e7e7e7;
+  --border-strong: #d4d4d4;
+  --input: #e0e0e0;
+  --ring: #111111;
+  --sidebar: #f2f2f2;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #111111;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7e7e7;
+  --sidebar-accent-foreground: #111111;
+  --sidebar-border: #e4e4e4;
+  --sidebar-ring: #111111;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03), 0 4px 16px -6px rgb(0 0 0 / 0.05);
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.05), 0 16px 48px -12px rgb(0 0 0 / 0.2);
+
+  /* Categories in greys — the calendar stays monochrome. Only exams keep a colour. */
+  --cat-school: #9b9b9b;
+  --cat-study: #1a1a1a;
+  --cat-health: #5e5e5e;
+  --cat-startup: #3b3b3b;
+  --cat-personal: #bdbdbd;
+  --cat-exam: #b42318;
+  --cat-finance: #7a7a7a;
+
+  --chart-1: #111111;
+  --chart-2: #5e5e5e;
+  --chart-3: #9b9b9b;
+  --chart-4: #c7c7c7;
+  --chart-5: #e2e2e2;
+  --chart-muted: #d4d4d4;
+  --title-soft: #111111;
+  --track: #f2f2f2;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #0d0d0d;
+  --foreground: #ededed;
+  --card: #151515;
+  --card-foreground: #ededed;
+  --popover: #1a1a1a;
+  --popover-foreground: #ededed;
+  --primary: #f2f2f2;
+  --primary-foreground: #0d0d0d;
+  --primary-soft: #232323;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #ededed;
+  --muted: #1e1e1e;
+  --muted-foreground: #8e8e8e;
+  --faint: #5c5c5c;
+  --accent: #202020;
+  --accent-foreground: #ededed;
+  --destructive: #e5675b;
+  --border: #252525;
+  --border-strong: #343434;
+  --input: #2e2e2e;
+  --ring: #f2f2f2;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #f2f2f2;
+  --sidebar-primary-foreground: #0d0d0d;
+  --sidebar-accent: #1c1c1c;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: #1f1f1f;
+  --sidebar-ring: #f2f2f2;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.4), 0 20px 56px -12px rgb(0 0 0 / 0.7);
+
+  --cat-school: #8a8a8a;
+  --cat-study: #f0f0f0;
+  --cat-health: #b0b0b0;
+  --cat-startup: #d0d0d0;
+  --cat-personal: #666666;
+  --cat-exam: #e5675b;
+  --cat-finance: #9a9a9a;
+
+  --chart-1: #f2f2f2;
+  --chart-2: #b0b0b0;
+  --chart-3: #777777;
+  --chart-4: #4a4a4a;
+  --chart-5: #2c2c2c;
+  --chart-muted: #343434;
+  --title-soft: #ededed;
+  --track: #1e1e1e;
+}
+
+@theme inline {
+  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-script: 'Pinyon Script', 'Snell Roundhand', cursive;
+  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', monospace;
+  --font-heading: var(--font-display);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-title-soft: var(--title-soft);
+  --color-track: var(--track);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-cat-school: var(--cat-school);
+  --color-cat-study: var(--cat-study);
+  --color-cat-health: var(--cat-health);
+  --color-cat-startup: var(--cat-startup);
+  --color-cat-personal: var(--cat-personal);
+  --color-cat-exam: var(--cat-exam);
+  --color-cat-finance: var(--cat-finance);
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.25);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 2);
+  --radius-4xl: calc(var(--radius) * 2.5);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/40;
+  }
+  html {
+    @apply font-sans antialiased;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+    overscroll-behavior: none;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 22%, transparent);
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: default;
+  }
+  a {
+    cursor: default;
+  }
+  /* Quiet scrollbars. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /*
+   * Type pairing: Outfit (geometric) for titles and quotes, heavy wide Archivo
+   * for figures, Pinyon Script for her name, DM Mono for labels, Archivo body.
+   */
+  .label-caps {
+    @apply font-mono text-[10.5px] font-normal tracking-[0.14em] uppercase;
+    color: color-mix(in oklab, var(--title-soft) 75%, var(--muted-foreground));
+  }
+  .display {
+    @apply font-display font-semibold tracking-[-0.035em];
+  }
+  .figure {
+    @apply font-sans font-extrabold tracking-[-0.04em] text-foreground;
+    font-stretch: 112%;
+  }
+  .script {
+    @apply font-normal tracking-normal;
+    font-family: var(--font-script);
+  }
+  .animate-page {
+    animation: page-in 320ms var(--ease-out-soft) both;
+  }
+  .animate-check {
+    animation: check-pop 260ms var(--ease-out-soft) both;
+  }
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.photos-mono img.photo {
+  filter: grayscale(1) contrast(1.02);
+}
+
+/*
+ * Optional camel accent (Settings → Accent). Only the accent changes: bars,
+ * charts, checkboxes, primary buttons. Text and structure stay black & white.
+ */
+.accent-camel {
+  --primary: #b08968;
+  --primary-foreground: #ffffff;
+  --primary-soft: #f3ece6;
+  --ring: #b08968;
+  --sidebar-primary: #b08968;
+  --chart-1: #b08968;
+  --chart-muted: #e2d3c5;
+  --title-soft: #6e6660;
+  --track: #efe6de;
+}
+.dark.accent-camel {
+  --primary: #c29d7e;
+  --primary-foreground: #0d0d0d;
+  --primary-soft: #2a231d;
+  --ring: #c29d7e;
+  --sidebar-primary: #c29d7e;
+  --chart-1: #c29d7e;
+  --chart-muted: #4a3f35;
+  --title-soft: #b9b0a8;
+  --track: #2a231d;
+}
+
+/* Note editor (TipTap). */
+.prose-note {
+  @apply text-[15px] leading-[1.75] text-foreground outline-none;
+}
+.prose-note > * + * {
+  margin-top: 0.75em;
+}
+.prose-note h1 {
+  @apply mt-8 font-display text-[26px] leading-tight font-semibold tracking-[-0.03em];
+}
+.prose-note h2 {
+  @apply mt-7 font-display text-[20px] leading-tight font-semibold tracking-[-0.025em];
+}
+.prose-note h3 {
+  @apply mt-6 text-[15px] font-semibold;
+}
+.prose-note ul:not([data-type='taskList']) {
+  @apply list-disc pl-5;
+}
+.prose-note ol {
+  @apply list-decimal pl-5;
+}
+.prose-note li > p {
+  margin: 0;
+}
+.prose-note li + li {
+  margin-top: 0.2em;
+}
+.prose-note li::marker {
+  color: var(--faint);
+}
+.prose-note blockquote {
+  @apply border-l-2 border-border-strong pl-4 text-muted-foreground;
+}
+.prose-note code {
+  @apply rounded-[5px] bg-muted px-1.5 py-0.5 font-mono text-[13px];
+}
+.prose-note pre {
+  @apply rounded-lg bg-muted p-4 font-mono text-[13px];
+}
+.prose-note hr {
+  @apply my-8 border-border;
+}
+.prose-note a {
+  @apply text-primary underline decoration-primary/30 underline-offset-2;
+}
+.prose-note ul[data-type='taskList'] {
+  @apply pl-0;
+}
+.prose-note ul[data-type='taskList'] li {
+  @apply flex items-start gap-2.5;
+}
+.prose-note ul[data-type='taskList'] li > label {
+  @apply mt-[5px] flex select-none;
+}
+.prose-note ul[data-type='taskList'] li > label input {
+  @apply size-3.5 accent-[var(--primary)];
+}
+.prose-note ul[data-type='taskList'] li[data-checked='true'] > div {
+  @apply text-muted-foreground line-through decoration-faint;
+}
+.prose-note p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply pointer-events-none float-left h-0 text-faint;
+}
+.prose-note .wikilink {
+  @apply rounded-sm bg-primary-soft px-1 text-primary;
+}

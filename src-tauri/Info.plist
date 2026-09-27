@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Shown by macOS the first time the app asks to control another app. -->
+  <key>NSAppleEventsUsageDescription</key>
+  <string>Shows what Spotify is playing and lets you play, pause and skip from your dashboard.</string>
+  <!-- Calendar access (Apple Calendar integration). -->
+  <key>NSCalendarsUsageDescription</key>
+  <string>Shows your calendar events alongside your tasks, exams and study sessions.</string>
+  <key>NSCalendarsFullAccessUsageDescription</key>
+  <string>Shows your calendar events alongside your tasks, exams and study sessions.</string>
+</dict>
+</plist>
