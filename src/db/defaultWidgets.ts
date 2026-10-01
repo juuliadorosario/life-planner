@@ -2,9 +2,12 @@ import type { WidgetSize } from '@/types/domain'
 
 /** The Home layout on first launch. Hidden widgets can be added back later. */
 export const DEFAULT_WIDGETS: { type: string; size: WidgetSize; visible: boolean }[] = [
-  // Home answers one question: what do I need today?
+  // Home answers one question: what do I need today, and what can't move this week?
+  { type: 'month', size: 'xl', visible: true },
+  { type: 'week', size: 'lg', visible: true },
+  { type: 'tasks', size: 'sm', visible: true },
+  { type: 'threads', size: 'md', visible: true },
   { type: 'schedule', size: 'md', visible: true },
-  { type: 'tasks', size: 'md', visible: true },
   { type: 'exams', size: 'sm', visible: true },
   { type: 'habits', size: 'sm', visible: true },
   { type: 'startup', size: 'sm', visible: true },

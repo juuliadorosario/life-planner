@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, CalendarDays, FileText, Flag, FolderKanban, Target, Trash2 } from 'lucide-react'
+import { BookOpen, CalendarDays, FileText, Flag, FolderKanban, Pin, Target, Trash2 } from 'lucide-react'
 import { useUI, type TaskDefaults } from '@/app/ui-state'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Kbd } from '@/components/common/Kbd'
 import { dayOffset, today } from '@/lib/dates'
+import { TASK_KINDS, kindOf, withKind } from '@/lib/taskKinds'
 import { cn } from '@/lib/utils'
 import type { Task } from '@/types/domain'
 import { LinkSelect } from '@/features/shared/LinkSelect'
 import { useLinkTargets } from '@/features/shared/useLinkTargets'
 import { useTaskActions, useTasks } from './hooks'
 
-type Draft = Pick<Task, 'title' | 'description' | 'dueDate' | 'priority' | 'projectId' | 'subjectId' | 'goalId' | 'examId' | 'areaId'>
+type Draft = Pick<Task, 'title' | 'description' | 'dueDate' | 'priority' | 'projectId' | 'subjectId' | 'goalId' | 'examId' | 'areaId' | 'tags'>
 
-const EMPTY: Draft = { title: '', description: null, dueDate: null, priority: 0, projectId: null, subjectId: null, goalId: null, examId: null, areaId: null }
+const EMPTY: Draft = { title: '', description: null, dueDate: null, priority: 0, projectId: null, subjectId: null, goalId: null, examId: null, areaId: null, tags: [] }
 
 const PRIORITIES = [
   { id: '0', name: 'No priority' },
@@ -94,6 +95,7 @@ function TaskForm({
       />
       <DuePicker value={draft.dueDate} onChange={(v) => set('dueDate', v)} />
       <div className="flex flex-wrap gap-1.5">
+        <LinkSelect icon={Pin} placeholder="Kind" value={kindOf(draft.tags)} options={[...TASK_KINDS]} onChange={(v) => set('tags', withKind(draft.tags, v))} />
         <LinkSelect icon={Flag} placeholder="Priority" value={draft.priority ? String(draft.priority) : null} options={PRIORITIES.slice(1)} onChange={(v) => set('priority', Number(v ?? 0))} />
         <LinkSelect icon={FolderKanban} placeholder="Project" value={draft.projectId} options={targets.projects} onChange={(v) => {
           const project = targets.projects.find((p) => p.id === v)

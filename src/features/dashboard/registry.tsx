@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react'
 import {
+  CalendarCheck,
   CalendarDays,
+  CalendarRange,
   CircleCheck,
   Clock,
   Dumbbell,
@@ -11,6 +13,7 @@ import {
   Music,
   NotebookPen,
   PenLine,
+  Pin,
   Plus,
   Rocket,
   Target,
@@ -25,6 +28,7 @@ import { ExamsWidget } from './widgets/ExamsWidget'
 import { FinanceWidget } from './widgets/FinanceWidget'
 import { GoalsWidget } from './widgets/GoalsWidget'
 import { HabitsWidget } from './widgets/HabitsWidget'
+import { MonthWidget } from './widgets/MonthWidget'
 import { SleepWidget, WorkoutWidget } from './widgets/HealthWidgets'
 import { QuickNotesWidget, RecentNotesWidget } from './widgets/NotesWidgets'
 import { QuickCaptureWidget } from './widgets/QuickCaptureWidget'
@@ -33,6 +37,8 @@ import { SpotifyWidget } from './widgets/SpotifyWidget'
 import { StartupWidget } from './widgets/StartupWidget'
 import { StudyWidget } from './widgets/StudyWidget'
 import { TasksWidget } from './widgets/TasksWidget'
+import { ThreadsWidget } from './widgets/ThreadsWidget'
+import { WeekWidget } from './widgets/WeekWidget'
 
 export interface WidgetDefinition {
   type: string
@@ -48,6 +54,9 @@ const ALL: WidgetSize[] = ['sm', 'md', 'lg', 'xl']
 
 /** Every widget LifeOS knows about. Add one here and it appears in "Add widget". */
 export const WIDGETS: WidgetDefinition[] = [
+  { type: 'month', name: 'This month', description: 'Fixed dates week by week, this week highlighted.', icon: CalendarCheck, defaultSize: 'xl', sizes: ['md', 'lg', 'xl'], component: MonthWidget },
+  { type: 'week', name: 'This week', description: 'Deadlines apart from flexible tasks.', icon: CalendarRange, defaultSize: 'lg', sizes: ['md', 'lg', 'xl'], component: WeekWidget },
+  { type: 'threads', name: 'Open threads', description: 'Undated threads and pending info, reviewed on Fridays.', icon: Pin, defaultSize: 'md', sizes: ['sm', 'md', 'lg'], component: ThreadsWidget },
   { type: 'schedule', name: "Today's schedule", description: 'Your day, hour by hour.', icon: Clock, defaultSize: 'lg', sizes: ALL, component: ScheduleWidget },
   { type: 'calendar', name: 'Calendar', description: 'This month at a glance.', icon: CalendarDays, defaultSize: 'sm', sizes: ['sm', 'md'], component: CalendarWidget },
   { type: 'tasks', name: 'Tasks', description: 'What is due today.', icon: CircleCheck, defaultSize: 'md', sizes: ALL, component: TasksWidget },
