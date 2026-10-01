@@ -326,3 +326,15 @@ export const channelStats = sqliteTable(
   },
   (t) => [uniqueIndex('channel_stats_month_channel').on(t.month, t.channel)],
 )
+
+/** Creativity page: images, writing and quotes pinned to a named board. */
+export const creativeItems = sqliteTable('creative_items', {
+  id: id(),
+  board: text('board').notNull().default('Moodboard'),
+  kind: text('kind', { enum: ['image', 'text', 'quote'] }).notNull(),
+  /** JPEG data URL, for `image` items. */
+  image: text('image'),
+  /** The writing itself, or an image's caption. */
+  text: text('text').notNull().default(''),
+  createdAt: createdAt(),
+})

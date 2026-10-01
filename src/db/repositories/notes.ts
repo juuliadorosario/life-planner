@@ -1,6 +1,7 @@
-import { desc, eq, like, or } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { db } from '../client'
 import { notes } from '../schema'
+import { findByTitle, linksTo } from '@/lib/wikilinks'
 import { newId, type Note } from '@/types/domain'
 
 export type NoteInput = Partial<Omit<Note, 'id' | 'createdAt' | 'updatedAt'>>
@@ -46,16 +47,13 @@ export async function deleteNote(id: string): Promise<void> {
   await db().delete(notes).where(eq(notes.id, id))
 }
 
-/** Notes that mention `[[title]]`. */
+/** Notes that mention `[[title]]` (any case, stray spaces ignored). */
 export async function listBacklinks(note: Pick<Note, 'id' | 'title'>): Promise<Note[]> {
   if (!note.title.trim()) return []
-  const rows = await db()
-    .select()
-    .from(notes)
-    .where(or(like(notes.contentText, `%[[${note.title}]]%`)))
-  return rows.filter((n) => n.id !== note.id)
+  const rows = await db().select().from(notes).orderBy(desc(notes.updatedAt))
+  return rows.filter((n) => n.id !== note.id && linksTo(n.contentText, note.title))
 }
 
 export async function findNoteByTitle(title: string): Promise<Note | undefined> {
-  return db().select().from(notes).where(eq(notes.title, title)).get()
+  return findByTitle(await db().select().from(notes), title)
 }

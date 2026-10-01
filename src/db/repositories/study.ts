@@ -7,22 +7,30 @@ import { newId, type Exam, type Subject, type SubjectTopic } from '@/types/domai
 
 export interface SubjectWithProgress extends Subject {
   topics: SubjectTopic[]
+  /** Share of topics and assignments ticked off — the subject's progress ring. */
   progress: number
+  progressDone: number
+  progressTotal: number
   nextExam?: Exam
 }
 
 export async function listSubjects(): Promise<SubjectWithProgress[]> {
-  const [rows, topicRows, examRows] = await Promise.all([
+  const [rows, topicRows, examRows, assignmentRows] = await Promise.all([
     db().select().from(subjects).orderBy(asc(subjects.sortOrder)),
     db().select().from(subjectTopics).orderBy(asc(subjectTopics.sortOrder)),
     db().select().from(exams).where(and(eq(exams.status, 'upcoming'), gte(exams.date, today()))).orderBy(asc(exams.date)),
+    db().select({ subjectId: assignments.subjectId, done: assignments.done }).from(assignments),
   ])
   return rows.map((s) => {
     const topics = topicRows.filter((t) => t.subjectId === s.id)
+    const items = [...topics, ...assignmentRows.filter((a) => a.subjectId === s.id)]
+    const done = items.filter((i) => i.done).length
     return {
       ...s,
       topics,
-      progress: topics.length ? Math.round((topics.filter((t) => t.done).length / topics.length) * 100) : 0,
+      progress: items.length ? Math.round((done / items.length) * 100) : 0,
+      progressDone: done,
+      progressTotal: items.length,
       nextExam: examRows.find((e) => e.subjectId === s.id),
     }
   })
@@ -122,6 +130,13 @@ export async function createExam(input: NewExamInput): Promise<string> {
   return id
 }
 
+export async function updateExam(id: string, patch: { title: string; subjectId: string; date: string; time?: string; location?: string; topics: string[]; grade?: string }): Promise<void> {
+  await db()
+    .update(exams)
+    .set({ ...patch, time: patch.time || null, location: patch.location || null, grade: patch.grade || null })
+    .where(eq(exams.id, id))
+}
+
 export async function setExamDone(id: string, done: boolean): Promise<void> {
   await db().update(exams).set({ status: done ? 'done' : 'upcoming' }).where(eq(exams.id, id))
 }
@@ -143,7 +158,15 @@ export async function setAssignmentDone(id: string, done: boolean): Promise<void
 }
 
 export async function createAssignment(input: { title: string; subjectId: string; dueDate?: string }): Promise<void> {
-  await db().insert(assignments).values({ id: newId(), ...input })
+  await db().insert(assignments).values({ id: newId(), title: input.title, subjectId: input.subjectId, dueDate: input.dueDate || null })
+}
+
+export async function deleteAssignment(id: string): Promise<void> {
+  await db().delete(assignments).where(eq(assignments.id, id))
+}
+
+export async function deleteTopic(id: string): Promise<void> {
+  await db().delete(subjectTopics).where(eq(subjectTopics.id, id))
 }
 
 export async function listStudySessions(opts: { from?: string; to?: string; subjectId?: string } = {}) {

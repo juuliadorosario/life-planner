@@ -53,7 +53,7 @@ export function StudyPage() {
               <div className="mt-6 flex items-end justify-between">
                 <span className="text-[28px] leading-none figure tabular">{s.progress}%</span>
                 <span className="text-[11.5px] text-muted-foreground tabular">
-                  {s.topics.filter((t) => t.done).length}/{s.topics.length} topics
+                  {s.progressDone}/{s.progressTotal} done
                 </span>
               </div>
               <ProgressBar value={s.progress} className="mt-3" />

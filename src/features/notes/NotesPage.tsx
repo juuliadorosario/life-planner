@@ -6,8 +6,8 @@ import { Card, CardHeader } from '@/components/common/Card'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Kbd } from '@/components/common/Kbd'
 import { Button } from '@/components/ui/button'
-import { findNoteByTitle } from '@/db/repositories/notes'
 import { cn } from '@/lib/utils'
+import { extractWikiLinks, findByTitle, normalizeTitle } from '@/lib/wikilinks'
 import type { Note } from '@/types/domain'
 import { LinkSelect } from '@/features/shared/LinkSelect'
 import { useLinkTargets } from '@/features/shared/useLinkTargets'
@@ -16,7 +16,16 @@ import { TaskRow } from '@/features/tasks/TaskRow'
 import { useBacklinks, useNoteActions, useNotes } from './hooks'
 import { NoteEditor } from './NoteEditor'
 
-const WIKILINK = /\[\[([^\]]+)\]\]/g
+/** Open the note a `[[Title]]` points at, creating it first if it doesn't exist. */
+function useOpenWikiLink(notes: Note[]) {
+  const navigate = useNavigate()
+  const { create } = useNoteActions()
+  return (title: string) => {
+    const target = findByTitle(notes, title)
+    if (target) navigate(`/notes/${target.id}`)
+    else create.mutate({ title: title.trim() }, { onSuccess: (n) => navigate(`/notes/${n.id}`) })
+  }
+}
 
 function NoteList({ notes, activeId }: { notes: Note[]; activeId?: string }) {
   const [query, setQuery] = useState('')
@@ -79,13 +88,12 @@ function NoteList({ notes, activeId }: { notes: Note[]; activeId?: string }) {
   )
 }
 
-function RelatedPanel({ note, onPatch }: { note: Note; onPatch: (patch: Partial<Note>) => void }) {
+function RelatedPanel({ note, onPatch, openLink }: { note: Note; onPatch: (patch: Partial<Note>) => void; openLink: (title: string) => void }) {
   const targets = useLinkTargets()
   const { data: backlinks = [] } = useBacklinks({ id: note.id, title: note.title })
   const scopedFilter = note.examId ? { examId: note.examId } : note.projectId ? { projectId: note.projectId } : note.subjectId ? { subjectId: note.subjectId } : note.goalId ? { goalId: note.goalId } : null
   const { data: tasks = [] } = useTasks(scopedFilter ?? { projectId: '__none__' })
-  const navigate = useNavigate()
-  const outgoing = [...new Set([...note.contentText.matchAll(WIKILINK)].map((m) => m[1]))]
+  const outgoing = extractWikiLinks(note.contentText)
   const [tagDraft, setTagDraft] = useState('')
 
   return (
@@ -131,10 +139,7 @@ function RelatedPanel({ note, onPatch }: { note: Note; onPatch: (patch: Partial<
             {outgoing.map((title) => (
               <button
                 key={title}
-                onClick={async () => {
-                  const target = await findNoteByTitle(title)
-                  navigate(target ? `/notes/${target.id}` : '/notes')
-                }}
+                onClick={() => openLink(title)}
                 className="-mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-muted"
               >
                 <Link2 className="size-3.5 shrink-0 text-muted-foreground" />
@@ -181,8 +186,10 @@ function RelatedPanel({ note, onPatch }: { note: Note; onPatch: (patch: Partial<
   )
 }
 
-function NoteView({ note }: { note: Note }) {
+function NoteView({ note, notes }: { note: Note; notes: Note[] }) {
   const { update, remove } = useNoteActions()
+  const openLink = useOpenWikiLink(notes)
+  const titles = new Set(notes.map((n) => normalizeTitle(n.title)).filter(Boolean))
   const navigate = useNavigate()
   const [title, setTitle] = useState(note.title)
   const [status, setStatus] = useState<'saved' | 'saving'>('saved')
@@ -233,11 +240,17 @@ function NoteView({ note }: { note: Note }) {
             className="w-full bg-transparent text-[30px] leading-tight font-semibold tracking-[-0.025em] outline-none placeholder:text-faint"
           />
           <div className="mt-6">
-            <NoteEditor content={note.content} onChange={(html, text) => queue({ content: html, contentText: text })} />
+            <NoteEditor
+              content={note.content}
+              onChange={(html, text) => queue({ content: html, contentText: text })}
+              noteExists={(t) => titles.has(normalizeTitle(t))}
+              onOpenLink={openLink}
+              linkTargetsKey={[...titles].sort().join('\n')}
+            />
           </div>
         </div>
       </div>
-      <RelatedPanel note={note} onPatch={(patch) => update.mutate({ id: note.id, patch })} />
+      <RelatedPanel note={note} onPatch={(patch) => update.mutate({ id: note.id, patch })} openLink={openLink} />
     </>
   )
 }
@@ -262,7 +275,7 @@ export function NotesPage() {
     <div className="animate-page flex h-svh">
       <NoteList notes={notes} activeId={id} />
       {note ? (
-        <NoteView key={note.id} note={note} />
+        <NoteView key={note.id} note={note} notes={notes} />
       ) : (
         <div className="grid flex-1 place-items-center">
           {!isLoading && id !== 'new' && (

@@ -54,7 +54,7 @@ fn store() -> Retained<EKEventStore> {
     unsafe { EKEventStore::new() }
 }
 
-fn status_name(status: EKAuthorizationStatus) -> &'static str {
+pub(crate) fn status_name(status: EKAuthorizationStatus) -> &'static str {
     match status {
         EKAuthorizationStatus::NotDetermined => "not-determined",
         EKAuthorizationStatus::Restricted => "restricted",
@@ -65,7 +65,7 @@ fn status_name(status: EKAuthorizationStatus) -> &'static str {
     }
 }
 
-fn hex(color: Option<Retained<CGColor>>) -> Option<String> {
+pub(crate) fn hex(color: Option<Retained<CGColor>>) -> Option<String> {
     let color = color?;
     let n = CGColor::number_of_components(Some(&color));
     let ptr = CGColor::components(Some(&color));

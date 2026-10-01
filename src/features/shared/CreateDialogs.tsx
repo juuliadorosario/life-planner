@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
-import { useUI } from '@/app/ui-state'
+import { useUI, type DialogContext } from '@/app/ui-state'
 import { useToast } from '@/app/toast'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -11,9 +11,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { useAppleCalendar, useCalendarActions } from '@/features/calendar/hooks'
 import { useGoalActions } from '@/features/goals/hooks'
 import { useProjectActions } from '@/features/projects/hooks'
-import { useStudyActions } from '@/features/study/hooks'
+import { useExam, useStudyActions } from '@/features/study/hooks'
 import { dayOffset, today } from '@/lib/dates'
-import type { EventCategory } from '@/types/domain'
+import type { EventCategory, Exam } from '@/types/domain'
 import { useLinkTargets } from './useLinkTargets'
 import { personal } from '@/config/personal'
 
@@ -124,23 +124,26 @@ function ProjectDialog({ onClose }: { onClose: () => void }) {
 
 function GoalDialog({ onClose }: { onClose: () => void }) {
   const targets = useLinkTargets()
-  const { create } = useGoalActions()
+  const { create, addMilestone } = useGoalActions()
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [areaId, setAreaId] = useState<string | null>(null)
   const [deadline, setDeadline] = useState('')
+  const [milestones, setMilestones] = useState('')
   return (
     <FormDialog
       open
       title="New goal"
-      description="Add milestones afterwards to track progress automatically."
+      description="Milestones are the steps to get there. Ticking them off fills the progress ring."
       onClose={onClose}
       submitLabel="Create goal"
       disabled={!title.trim()}
       onSubmit={() =>
         create.mutate({ title: title.trim(), description: description || null, areaId, deadline: deadline || null }, {
-          onSuccess: (g) => {
+          onSuccess: async (g) => {
+            const steps = milestones.split('\n').map((m) => m.trim()).filter(Boolean)
+            for (const step of steps) await addMilestone.mutateAsync({ goalId: g.id, title: step })
             onClose()
             navigate(`/goals/${g.id}`)
           },
@@ -161,16 +164,19 @@ function GoalDialog({ onClose }: { onClose: () => void }) {
           <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
         </Field>
       </div>
+      <Field label="Milestones" hint="One per line. You can add more later on the goal's page.">
+        <Textarea value={milestones} onChange={(e) => setMilestones(e.target.value)} placeholder={'Run 10 km\nRun 15 km\nSign up for the race'} rows={3} />
+      </Field>
     </FormDialog>
   )
 }
 
-function SessionDialog({ onClose }: { onClose: () => void }) {
+function SessionDialog({ onClose, context }: { onClose: () => void; context: DialogContext }) {
   const targets = useLinkTargets()
   const { createSession } = useStudyActions()
   const toast = useToast()
-  const [subjectId, setSubjectId] = useState<string | null>(targets.subjects[0]?.id ?? null)
-  const [examId, setExamId] = useState<string | null>(null)
+  const [subjectId, setSubjectId] = useState<string | null>(context.subjectId ?? targets.subjects[0]?.id ?? null)
+  const [examId, setExamId] = useState<string | null>(context.examId ?? null)
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(today())
   const [startTime, setStartTime] = useState('16:00')
@@ -219,18 +225,70 @@ function SessionDialog({ onClose }: { onClose: () => void }) {
   )
 }
 
-function ExamDialog({ onClose }: { onClose: () => void }) {
+function ExamDialog({ onClose, context }: { onClose: () => void; context: DialogContext }) {
+  const { data: existing, isLoading } = useExam(context.examId ?? '')
+  if (context.examId && isLoading) return null
+  return <ExamForm onClose={onClose} subjectId={context.subjectId} exam={context.examId ? existing : undefined} />
+}
+
+/** New exam, or — when `exam` is given — edit its date, room, topics and grade. */
+function ExamForm({ onClose, subjectId: preselected, exam }: { onClose: () => void; subjectId?: string; exam?: Exam }) {
   const targets = useLinkTargets()
-  const { createExam } = useStudyActions()
+  const { createExam, updateExam } = useStudyActions()
   const navigate = useNavigate()
-  const [subjectId, setSubjectId] = useState<string | null>(targets.subjects[0]?.id ?? null)
-  const [title, setTitle] = useState('')
-  const [date, setDate] = useState(dayOffset(14))
-  const [time, setTime] = useState('09:00')
-  const [location, setLocation] = useState('')
-  const [topics, setTopics] = useState('')
+  const [subjectId, setSubjectId] = useState<string | null>(exam?.subjectId ?? preselected ?? targets.subjects[0]?.id ?? null)
+  const [title, setTitle] = useState(exam?.title ?? '')
+  const [date, setDate] = useState(exam?.date ?? dayOffset(14))
+  const [time, setTime] = useState(exam?.time ?? '09:00')
+  const [location, setLocation] = useState(exam?.location ?? '')
+  const [topics, setTopics] = useState(exam?.topics.join(', ') ?? '')
+  const [grade, setGrade] = useState(exam?.grade ?? '')
   const [generatePlan, setGeneratePlan] = useState(true)
   const subjectName = targets.subjects.find((s) => s.id === subjectId)?.name
+  const topicList = topics.split(',').map((t) => t.trim()).filter(Boolean)
+  if (exam) {
+    return (
+      <FormDialog
+        open
+        title="Edit exam"
+        onClose={onClose}
+        submitLabel="Save"
+        disabled={!subjectId || !date}
+        onSubmit={() =>
+          updateExam.mutate(
+            { id: exam.id, patch: { subjectId: subjectId!, title: title.trim() || `${subjectName} exam`, date, time, location, topics: topicList, grade } },
+            { onSuccess: onClose },
+          )
+        }
+      >
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Subject">
+            <OptionSelect value={subjectId} onChange={setSubjectId} options={targets.subjects} placeholder="Subject" />
+          </Field>
+          <Field label="Title">
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          </Field>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <Field label="Date">
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </Field>
+          <Field label="Time">
+            <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+          </Field>
+          <Field label="Room">
+            <Input value={location} onChange={(e) => setLocation(e.target.value)} />
+          </Field>
+        </div>
+        <Field label="Topics" hint="Separate with commas.">
+          <Input value={topics} onChange={(e) => setTopics(e.target.value)} />
+        </Field>
+        <Field label="Grade" hint="Fill it in once you get the result.">
+          <Input value={grade} onChange={(e) => setGrade(e.target.value)} placeholder="8.5" />
+        </Field>
+      </FormDialog>
+    )
+  }
   return (
     <FormDialog
       open
@@ -247,7 +305,7 @@ function ExamDialog({ onClose }: { onClose: () => void }) {
             date,
             time,
             location,
-            topics: topics.split(',').map((t) => t.trim()).filter(Boolean),
+            topics: topicList,
             generatePlan,
           },
           {
@@ -391,7 +449,7 @@ function EventDialog({ onClose }: { onClose: () => void }) {
 
 /** Create dialogs opened from the command palette and page headers. */
 export function CreateDialogs() {
-  const { dialog, openDialog } = useUI()
+  const { dialog, dialogContext, openDialog } = useUI()
   const close = () => openDialog(undefined)
   switch (dialog) {
     case 'project':
@@ -399,9 +457,9 @@ export function CreateDialogs() {
     case 'goal':
       return <GoalDialog onClose={close} />
     case 'session':
-      return <SessionDialog onClose={close} />
+      return <SessionDialog onClose={close} context={dialogContext} />
     case 'exam':
-      return <ExamDialog onClose={close} />
+      return <ExamDialog onClose={close} context={dialogContext} />
     case 'event':
       return <EventDialog onClose={close} />
     default:

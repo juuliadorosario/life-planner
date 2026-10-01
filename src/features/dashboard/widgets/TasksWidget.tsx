@@ -1,6 +1,7 @@
 import { Sun } from 'lucide-react'
 import { Panel } from '@/components/common/Card'
 import { EmptyState } from '@/components/common/EmptyState'
+import { TodayReminders } from '@/features/calendar/Reminders'
 import { useTasks } from '@/features/tasks/hooks'
 import { TaskRow } from '@/features/tasks/TaskRow'
 import { InlineAddTask } from '@/features/tasks/TasksPage'
@@ -22,6 +23,7 @@ export function TasksWidget() {
         <EmptyState compact icon={Sun} title="You're all caught up." />
       )}
       <InlineAddTask defaults={{ dueDate: today() }} />
+      <TodayReminders />
     </Panel>
   )
 }

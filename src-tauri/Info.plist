@@ -10,5 +10,10 @@
   <string>Shows your calendar events alongside your tasks, exams and study sessions.</string>
   <key>NSCalendarsFullAccessUsageDescription</key>
   <string>Shows your calendar events alongside your tasks, exams and study sessions.</string>
+  <!-- Reminders access (Apple Reminders integration). -->
+  <key>NSRemindersUsageDescription</key>
+  <string>Shows your reminders next to your tasks and under your calendar.</string>
+  <key>NSRemindersFullAccessUsageDescription</key>
+  <string>Shows your reminders next to your tasks and under your calendar.</string>
 </dict>
 </plist>

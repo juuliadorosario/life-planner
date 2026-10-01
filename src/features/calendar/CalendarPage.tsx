@@ -29,6 +29,7 @@ import { calendarService, type CalendarEvent } from '@/providers/calendar'
 import { AppleCalendarBanner } from './AppleCalendarConnect'
 import { EVENT_BLOCK } from './eventStyle'
 import { useCalendarEvents } from './hooks'
+import { CalendarReminders } from './Reminders'
 
 type View = 'month' | 'week' | 'day' | 'agenda'
 const VIEWS: View[] = ['month', 'week', 'day', 'agenda']
@@ -300,6 +301,7 @@ export function CalendarPage() {
       {view === 'week' && <TimeGrid days={eachDayOfInterval(range)} events={events} />}
       {view === 'day' && <TimeGrid days={[date]} events={events} />}
       {view === 'agenda' && <AgendaView events={events} />}
+      <CalendarReminders start={range.start} end={range.end} />
 
       <p className="mt-4 text-[12px] text-faint">
         Sources: {calendarService.list().map((p) => p.name).join(' · ')}.

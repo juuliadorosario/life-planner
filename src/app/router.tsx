@@ -5,10 +5,12 @@ import { HomePage } from '@/features/dashboard/HomePage'
 import { FinancePage } from '@/features/finance/FinancePage'
 import { GoalPage } from '@/features/goals/GoalPage'
 import { GoalsPage } from '@/features/goals/GoalsPage'
+import { CreativityPage } from '@/features/creativity/CreativityPage'
 import { HealthPage } from '@/features/health/HealthPage'
 import { NotesPage } from '@/features/notes/NotesPage'
 import { ProjectPage } from '@/features/projects/ProjectPage'
 import { ProjectsPage } from '@/features/projects/ProjectsPage'
+import { SchedulePage } from '@/features/schedule/SchedulePage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { StartupPage } from '@/features/startup/StartupPage'
 import { ExamPage } from '@/features/study/ExamPage'
@@ -29,6 +31,8 @@ export const router = createHashRouter([
       { path: '/study', element: <StudyPage /> },
       { path: '/study/subjects/:id', element: <SubjectPage /> },
       { path: '/study/exams/:id', element: <ExamPage /> },
+      { path: '/schedule', element: <SchedulePage /> },
+      { path: '/creativity', element: <CreativityPage /> },
       { path: '/startup', element: <StartupPage /> },
       { path: '/health', element: <HealthPage /> },
       { path: '/finance', element: <FinancePage /> },

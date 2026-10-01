@@ -1,11 +1,13 @@
 import {
   CalendarDays,
+  CalendarRange,
   CircleCheck,
   FolderKanban,
   GraduationCap,
   HeartPulse,
   House,
   NotebookPen,
+  Palette,
   Rocket,
   Sun,
   Target,
@@ -29,12 +31,14 @@ export const NAV_GROUPS: NavItem[][] = [
   ],
   [
     { label: 'Study', to: '/study', icon: GraduationCap },
+    { label: 'School schedule', to: '/schedule', icon: CalendarRange },
     { label: 'Startup', to: '/startup', icon: Rocket },
     { label: 'Health', to: '/health', icon: HeartPulse },
     { label: 'Finance', to: '/finance', icon: Wallet },
   ],
   [
     { label: 'Notes', to: '/notes', icon: NotebookPen },
+    { label: 'Creativity', to: '/creativity', icon: Palette },
     { label: 'Projects', to: '/projects', icon: FolderKanban },
     { label: 'Goals', to: '/goals', icon: Target },
   ],

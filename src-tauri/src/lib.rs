@@ -1,5 +1,7 @@
 #[cfg(target_os = "macos")]
 mod calendar;
+#[cfg(target_os = "macos")]
+mod reminders;
 mod spotify;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -15,6 +17,10 @@ pub fn run() {
       calendar::calendar_list,
       calendar::calendar_events,
       calendar::calendar_create_event,
+      reminders::reminders_status,
+      reminders::reminders_request_access,
+      reminders::reminders_list,
+      reminders::reminders_set_completed,
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {

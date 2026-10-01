@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from 'react-router'
 import { format } from 'date-fns'
-import { CalendarDays, Clock, MapPin, Trash2 } from 'lucide-react'
+import { CalendarDays, Clock, MapPin, Pencil, Trash2 } from 'lucide-react'
+import { useUI } from '@/app/ui-state'
 import { Card, Panel } from '@/components/common/Card'
 import { CheckCircle } from '@/components/common/CheckCircle'
 import { EmptyState } from '@/components/common/EmptyState'
@@ -21,6 +22,7 @@ export function ExamPage() {
   const { data: subjects = [] } = useSubjects()
   const { toggleSession, setExamDone, deleteExam, toggleTopic } = useStudyActions()
   const navigate = useNavigate()
+  const { openDialog } = useUI()
   if (isLoading) return null
   if (!exam) return <Page><EmptyState title="Exam not found." /></Page>
   const subject = subjects.find((s) => s.id === exam.subjectId)
@@ -54,6 +56,9 @@ export function ExamPage() {
             </div>
           )}
           <div className="flex flex-col gap-1">
+            <Button variant="outline" size="sm" onClick={() => openDialog('exam', { examId: id })}>
+              <Pencil /> Edit
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setExamDone.mutate({ id, done: exam.status !== 'done' })}>
               {exam.status === 'done' ? 'Mark upcoming' : 'Mark as done'}
             </Button>

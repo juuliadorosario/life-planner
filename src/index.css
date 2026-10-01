@@ -304,6 +304,51 @@
 .prose-note {
   @apply text-[15px] leading-[1.75] text-foreground outline-none;
 }
+/* Images in notes: resizable from the sides or the bottom-right corner. */
+.prose-note img {
+  @apply block h-auto max-w-full rounded-lg;
+}
+.prose-note [data-resize-container] {
+  @apply my-5 max-w-full;
+}
+.prose-note [data-resize-wrapper] {
+  @apply max-w-full;
+}
+.prose-note .ProseMirror-selectednode img,
+.prose-note [data-resize-container].ProseMirror-selectednode img {
+  @apply ring-2 ring-foreground ring-offset-2 ring-offset-background;
+}
+.prose-note [data-resize-handle] {
+  @apply z-10 opacity-0 transition-opacity;
+}
+.prose-note [data-resize-container]:hover [data-resize-handle],
+.prose-note [data-resize-container][data-resize-state='true'] [data-resize-handle] {
+  @apply opacity-100;
+}
+.prose-note [data-resize-handle='left'],
+.prose-note [data-resize-handle='right'] {
+  @apply h-10 w-1.5 -translate-y-1/2 cursor-ew-resize rounded-full border border-white/80 bg-foreground/70;
+  top: 50% !important;
+  bottom: auto !important;
+}
+.prose-note [data-resize-handle='left'] {
+  left: 6px !important;
+}
+.prose-note [data-resize-handle='right'] {
+  right: 6px !important;
+}
+.prose-note [data-resize-handle='bottom-right'] {
+  @apply size-3 cursor-nwse-resize rounded-full border-2 border-white bg-foreground;
+  right: 4px !important;
+  bottom: 4px !important;
+}
+/* [[Note title]] links: solid underline when the note exists, dashed and faint when it doesn't. */
+.prose-note .wikilink {
+  @apply cursor-pointer rounded-[3px] font-medium underline decoration-foreground/35 underline-offset-[3px] transition-colors hover:bg-muted hover:decoration-foreground;
+}
+.prose-note .wikilink-unresolved {
+  @apply font-normal text-muted-foreground decoration-dashed decoration-faint;
+}
 .prose-note > * + * {
   margin-top: 0.75em;
 }
@@ -364,7 +409,4 @@
 .prose-note p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   @apply pointer-events-none float-left h-0 text-faint;
-}
-.prose-note .wikilink {
-  @apply rounded-sm bg-primary-soft px-1 text-primary;
 }

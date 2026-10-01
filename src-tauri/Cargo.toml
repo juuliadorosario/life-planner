@@ -30,6 +30,6 @@ tauri-plugin-opener = "2"
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6"
 block2 = "0.6"
-objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSDate", "NSString", "NSArray", "NSError", "NSPredicate", "NSObject"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSDate", "NSString", "NSArray", "NSError", "NSPredicate", "NSObject", "NSCalendar"] }
 objc2-core-graphics = { version = "0.3", default-features = false, features = ["std", "CGColor", "objc2"] }
-objc2-event-kit = { version = "0.3", default-features = false, features = ["std", "EKEventStore", "EKEvent", "EKCalendar", "EKCalendarItem", "EKObject", "EKTypes", "EKSource", "block2", "objc2-core-graphics"] }
+objc2-event-kit = { version = "0.3", default-features = false, features = ["std", "EKEventStore", "EKEvent", "EKCalendar", "EKCalendarItem", "EKReminder", "EKObject", "EKTypes", "EKSource", "block2", "objc2-core-graphics"] }

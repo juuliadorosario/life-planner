@@ -52,7 +52,10 @@ export function GoalPage() {
       />
       <div className="grid grid-cols-12 gap-5">
         <div className="col-span-12 flex flex-col gap-5 lg:col-span-8">
-          <Panel title="Milestones">
+          <Panel title="Milestones" action={<span className="text-[12px] text-muted-foreground tabular">{goal.milestones.filter((m) => m.done).length}/{goal.milestones.length}</span>}>
+            {goal.milestones.length === 0 && (
+              <p className="mb-2 text-[13px] text-muted-foreground">Break the goal into steps. Each one you tick off moves the progress ring.</p>
+            )}
             <div className="flex flex-col">
               {goal.milestones.map((m) => (
                 <div key={m.id} className="group/m -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-muted/60">
@@ -74,7 +77,7 @@ export function GoalPage() {
               }}
             >
               <Plus className="size-[18px] p-0.5" />
-              <input value={milestone} onChange={(e) => setMilestone(e.target.value)} placeholder="Add a milestone" className="flex-1 bg-transparent text-[13.5px] text-foreground outline-none placeholder:text-muted-foreground" />
+              <input value={milestone} onChange={(e) => setMilestone(e.target.value)} placeholder="Add a milestone and press Enter" className="flex-1 bg-transparent text-[13.5px] text-foreground outline-none placeholder:text-muted-foreground" />
             </form>
             {goal.milestones.length === 0 && (
               <div className="mt-2 flex items-center gap-3 border-t border-border pt-4 text-[13px] text-muted-foreground">
