@@ -1,6 +1,9 @@
 import { getAllSettings, setSetting } from '@/db/repositories/settings'
 import { useDbMutation, useDbQuery } from './data'
 
+/** One month of the website funnel: how many visits reached each step, and for how long. */
+export type FunnelMonth = { month: string; steps: { id: string; count: number; seconds: number }[] }
+
 export interface AppSettings {
   userName: string
   startupName: string
@@ -17,6 +20,12 @@ export interface AppSettings {
   hiddenAreas: string[]
   /** Link that answers with live Website and Leads numbers (see features/startup/liveNumbers.ts). */
   marketingLiveUrl: string
+  /** Anthropic API key for smart capture (see providers/ai/smartCapture.ts). Empty = AI off. */
+  aiApiKey: string
+  /** What the assistant knows about the user; it can add to this itself (see providers/ai/assistant.ts). */
+  aiAbout: string
+  /** Last website funnel the live link answered with, kept so it shows offline. */
+  marketingFunnel: FunnelMonth[]
   /** First-run setup finished (or skipped). */
   onboarded: boolean
 }
@@ -36,6 +45,9 @@ export function useSettings(): AppSettings {
     appleHiddenCalendars: (data?.appleHiddenCalendars as string[]) ?? [],
     hiddenAreas: (data?.hiddenAreas as string[]) ?? [],
     marketingLiveUrl: (data?.marketingLiveUrl as string) ?? '',
+    aiApiKey: (data?.aiApiKey as string) ?? '',
+    aiAbout: (data?.aiAbout as string) ?? '',
+    marketingFunnel: (data?.marketingFunnel as FunnelMonth[]) ?? [],
     onboarded: Boolean(data?.onboarded),
   }
 }

@@ -17,6 +17,7 @@ import { Field, OptionSelect } from '@/features/shared/CreateDialogs'
 import { NotesList } from '@/features/shared/NotesList'
 import { useLiveNumbers } from './liveNumbers'
 import { pctChange } from './MetricTile'
+import { WebsiteFunnel } from './WebsiteFunnel'
 
 export const CHANNELS = [
   { id: 'instagram', name: 'Instagram' },
@@ -281,9 +282,11 @@ function ContentBoard() {
 
 /** Marketing: audience numbers, the content pipeline, and ideas. */
 export function StartupMarketing() {
+  const { stats } = useMarketing()
   return (
     <div className="flex flex-col gap-5">
       <ChannelNumbers />
+      <WebsiteFunnel visits={(month) => stats.find((s) => s.channel === 'web' && s.month === `${month}-01`)?.value} />
       <ContentBoard />
       <NotesList title="Ideas" filter={{ folder: 'Marketing' }} defaults={{ folder: 'Marketing', kind: 'idea' }} />
     </div>
