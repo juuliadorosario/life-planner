@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input'
 import * as repo from '@/db/repositories/marketing'
 import type { MarketingPost, PostStatus } from '@/db/repositories/marketing'
 import { useDbMutation, useDbQuery } from '@/hooks/data'
+import { useSetSetting, useSettings } from '@/hooks/useSettings'
 import { parseDay, relativeDay, toDay } from '@/lib/dates'
 import { cn } from '@/lib/utils'
 import { Field, OptionSelect } from '@/features/shared/CreateDialogs'
 import { NotesList } from '@/features/shared/NotesList'
+import { useLiveNumbers } from './liveNumbers'
 import { pctChange } from './MetricTile'
 
 export const CHANNELS = [
@@ -56,6 +58,12 @@ function ChannelNumbers() {
   const [logging, setLogging] = useState(false)
   const thisMonth = toDay(startOfMonth(new Date()))
   const [draft, setDraft] = useState<Record<string, string>>({})
+  const { marketingLiveUrl } = useSettings()
+  const setSetting = useSetSetting()
+  const live = useLiveNumbers(marketingLiveUrl)
+  const liveChannels = live.data?.channels ?? []
+  const [connecting, setConnecting] = useState(false)
+  const [link, setLink] = useState('')
 
   const series = (channel: string) => stats.filter((s) => s.channel === channel)
   return (
@@ -69,7 +77,10 @@ function ChannelNumbers() {
           return (
             <Card key={st.id} className="flex flex-col p-5">
               <div className="flex items-center justify-between">
-                <span className="label-caps">{st.label}</span>
+                <span className="label-caps flex items-center gap-1.5">
+                  {st.label}
+                  {liveChannels.includes(st.id) && <span className="size-1.5 rounded-full bg-primary" title="Live" />}
+                </span>
                 {delta != null && Number.isFinite(delta) && (
                   <span className={cn('text-[11.5px] tabular', delta >= 0 ? 'text-primary' : 'text-destructive')}>
                     {delta >= 0 ? '+' : '−'}
@@ -86,7 +97,39 @@ function ChannelNumbers() {
           )
         })}
       </div>
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex flex-wrap items-center justify-end gap-x-5 gap-y-2">
+        {connecting ? (
+          <form
+            className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card p-3"
+            onSubmit={(e) => {
+              e.preventDefault()
+              setSetting.mutate({ key: 'marketingLiveUrl', value: link.trim() })
+              setConnecting(false)
+            }}
+          >
+            <Field label="Link that answers with your Website and Leads numbers">
+              <Input type="url" className="w-80" placeholder="https://…" value={link} onChange={(e) => setLink(e.target.value)} autoFocus />
+            </Field>
+            <Button type="submit" size="sm">{link.trim() ? 'Connect' : 'Disconnect'}</Button>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={() => setConnecting(false)} aria-label="Cancel"><X /></Button>
+          </form>
+        ) : (
+          <button
+            onClick={() => {
+              setLink(marketingLiveUrl)
+              setConnecting(true)
+            }}
+            className={cn('text-[12.5px] hover:text-foreground', live.isError ? 'text-destructive' : 'text-muted-foreground')}
+          >
+            {!marketingLiveUrl
+              ? 'Connect live numbers'
+              : live.isError
+                ? `Live numbers: ${live.error.message}`
+                : live.data
+                  ? `Live · updated ${format(live.data.at, 'HH:mm')}`
+                  : 'Live · connecting…'}
+          </button>
+        )}
         {logging ? (
           <form
             className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card p-3"

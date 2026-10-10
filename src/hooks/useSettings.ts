@@ -15,6 +15,8 @@ export interface AppSettings {
   appleHiddenCalendars: string[]
   /** Areas the user doesn't use; hidden from the sidebar. */
   hiddenAreas: string[]
+  /** Link that answers with live Website and Leads numbers (see features/startup/liveNumbers.ts). */
+  marketingLiveUrl: string
   /** First-run setup finished (or skipped). */
   onboarded: boolean
 }
@@ -33,6 +35,7 @@ export function useSettings(): AppSettings {
     coverStyle: (data?.coverStyle as AppSettings['coverStyle']) ?? 'black',
     appleHiddenCalendars: (data?.appleHiddenCalendars as string[]) ?? [],
     hiddenAreas: (data?.hiddenAreas as string[]) ?? [],
+    marketingLiveUrl: (data?.marketingLiveUrl as string) ?? '',
     onboarded: Boolean(data?.onboarded),
   }
 }
