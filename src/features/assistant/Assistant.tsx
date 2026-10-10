@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type Anthropic from '@anthropic-ai/sdk'
 import { ArrowUp, Check, Eye, Sparkles, SquarePen, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { personal } from '@/config/personal'
 import { Input } from '@/components/ui/input'
 import { useHotkeys } from '@/hooks/useHotkeys'
 import { useSetSetting, useSettings } from '@/hooks/useSettings'
@@ -13,8 +14,6 @@ type Item =
   /** Something the assistant looked at or changed, shown as a quiet line. */
   | { type: 'activity'; kind: 'read' | 'write'; text: string }
 
-// Only questions: a tap on one of these must never change anything.
-const SUGGESTIONS = ['Com tinc la setmana?', 'Què hauria de fer avui primer?', 'Què tinc endarrerit?']
 
 /** ⌘J — a chat with the assistant, floating over whatever page you are on. */
 export function Assistant() {
@@ -128,7 +127,7 @@ export function Assistant() {
                 {!items.length && (
                   <div className="mt-auto flex flex-col items-start gap-1.5">
                     <p className="mb-1 text-[14px] text-muted-foreground">Ask about your week, or tell me what to add or change.</p>
-                    {SUGGESTIONS.map((s) => (
+                    {personal.assistantSuggestions.map((s) => (
                       <button key={s} onClick={() => void send(s)} className="rounded-full border border-border px-3 py-1.5 text-[12.5px] text-muted-foreground transition-colors hover:text-foreground">
                         {s}
                       </button>

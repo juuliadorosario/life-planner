@@ -26,6 +26,8 @@ export interface Personal {
   photoOptions: Record<string, { position?: string; fit?: 'cover' | 'contain'; bg?: string }>
   /** Default covers for project cards (photo refs), used in order. */
   projectCovers: string[]
+  /** Questions offered in an empty assistant chat. Keep them to questions: a tap must never change anything. */
+  assistantSuggestions: string[]
 }
 
 export const TEMPLATE: Personal = {
@@ -38,6 +40,7 @@ export const TEMPLATE: Personal = {
   photoSlots: {},
   photoOptions: {},
   projectCovers: [],
+  assistantSuggestions: ['How does my week look?', 'What should I do first today?', 'What is overdue?'],
 }
 
 const found = import.meta.glob('../personal/index.ts', { eager: true, import: 'personal' }) as Record<string, Partial<Personal>>
