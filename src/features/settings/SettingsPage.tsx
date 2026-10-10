@@ -7,6 +7,7 @@ import { Kbd } from '@/components/common/Kbd'
 import { Page, PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { AppleCalendarSettings } from '@/features/calendar/AppleCalendarConnect'
 import { COVER_STYLES, type CoverStyle } from '@/features/study/SubjectCover'
@@ -16,7 +17,6 @@ import { deleteSetting } from '@/db/repositories/settings'
 import { queryClient } from '@/hooks/data'
 import { useSetSetting, useSettings } from '@/hooks/useSettings'
 import { cn } from '@/lib/utils'
-import { aiProvider } from '@/providers/ai/AIProvider'
 import { calendarService } from '@/providers/calendar'
 import { getSpotifyProvider } from '@/providers/spotify'
 import { personal } from '@/config/personal'
@@ -51,10 +51,24 @@ function Status({ on, children }: { on: boolean; children: ReactNode }) {
   )
 }
 
-function TextSetting({ settingKey, value, placeholder }: { settingKey: 'userName' | 'startupName'; value: string; placeholder: string }) {
+function TextSetting({ settingKey, value, placeholder, secret }: { settingKey: 'userName' | 'startupName' | 'aiApiKey'; value: string; placeholder: string; secret?: boolean }) {
   const set = useSetSetting()
   const [draft, setDraft] = useState(value)
-  return <Input className="w-56" value={draft} placeholder={placeholder} onChange={(e) => setDraft(e.target.value)} onBlur={() => draft !== value && set.mutate({ key: settingKey, value: draft.trim() })} />
+  return <Input className="w-56" type={secret ? 'password' : 'text'} value={draft} placeholder={placeholder} onChange={(e) => setDraft(e.target.value)} onBlur={() => draft !== value && set.mutate({ key: settingKey, value: draft.trim() })} />
+}
+
+function AboutSetting({ value }: { value: string }) {
+  const set = useSetSetting()
+  const [draft, setDraft] = useState(value)
+  return (
+    <Textarea
+      rows={5}
+      value={draft}
+      placeholder="I'm in my last year of school, I study in the evenings, and I want short, direct answers…"
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => draft !== value && set.mutate({ key: 'aiAbout', value: draft.trim() })}
+    />
+  )
 }
 
 export function SettingsPage() {
@@ -185,7 +199,17 @@ export function SettingsPage() {
             <AppleCalendarSettings />
           </div>
           <Row label="Spotify"><Status on={spotify.id !== 'mock'}>{spotify.id !== 'mock' ? 'Spotify app on this Mac' : 'Demo player (browser)'}</Status></Row>
-          <Row label="AI assistant"><Status on={aiProvider.available}>{aiProvider.available ? 'Ready' : 'Not configured'}</Status></Row>
+        </Section>
+
+        <Section title="Assistant" description="A chat that can read and change your planner, and a quick capture that sorts what you write. Both need an Anthropic API key, which stays on this Mac.">
+          <Row label="API key">
+            <TextSetting key={settings.aiApiKey} settingKey="aiApiKey" value={settings.aiApiKey} placeholder="Anthropic API key" secret />
+          </Row>
+          <div className="flex flex-col gap-2">
+            <span className="text-[13.5px]">About you</span>
+            <AboutSetting key={settings.aiAbout} value={settings.aiAbout} />
+            <span className="text-[12.5px] text-muted-foreground">What the assistant should know about you and how you want it to work. It adds to this when you tell it something worth keeping.</span>
+          </div>
         </Section>
 
         <Section title="Data" description="Your data lives on this device, in a single SQLite database.">

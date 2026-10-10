@@ -7,6 +7,7 @@ import { CommandPalette } from '@/features/search/CommandPalette'
 import { getAllSettings } from '@/db/repositories/settings'
 import { useDbQuery } from '@/hooks/data'
 import { QuickCapture } from '@/features/capture/QuickCapture'
+import { Assistant } from '@/features/assistant/Assistant'
 import { TaskDialogs } from '@/features/tasks/TaskDialogs'
 import { CreateDialogs } from '@/features/shared/CreateDialogs'
 import { useHotkeys } from '@/hooks/useHotkeys'
@@ -65,6 +66,7 @@ export function AppShell() {
       </main>
       <CommandPalette />
       <QuickCapture />
+      <Assistant />
       <TaskDialogs />
       <CreateDialogs />
       {showSetup && <Onboarding onClose={() => setSetupDone(true)} />}

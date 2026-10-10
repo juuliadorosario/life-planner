@@ -9,10 +9,12 @@ import { createNote } from '@/db/repositories/notes'
 import { createLink } from '@/db/repositories/startup'
 import { createTask } from '@/db/repositories/tasks'
 import { useDbMutation } from '@/hooks/data'
-import { dayOffset, today } from '@/lib/dates'
+import { useSettings } from '@/hooks/useSettings'
+import { dayOffset, relativeDay, today } from '@/lib/dates'
 import { cn } from '@/lib/utils'
 import { LinkSelect } from '@/features/shared/LinkSelect'
 import { useLinkTargets } from '@/features/shared/useLinkTargets'
+import { sortCapture } from '@/providers/ai/smartCapture'
 
 type Kind = 'task' | 'note' | 'idea' | 'link'
 
@@ -78,6 +80,10 @@ export function QuickCapture() {
   const [kindTouched, setKindTouched] = useState(false)
   const [links, setLinks] = useState<Links>({ projectId: null, subjectId: null, goalId: null })
   const [due, setDue] = useState<string | null>(null)
+  const { aiApiKey } = useSettings()
+  // With an API key, the first ↵ lets the AI sort the capture and the second one saves it.
+  const [sorting, setSorting] = useState(false)
+  const [sorted, setSorted] = useState(false)
   const save = useDbMutation(() => capture(kind, text, links, due))
 
   useEffect(() => {
@@ -87,6 +93,8 @@ export function QuickCapture() {
       setKindTouched(false)
       setLinks({ projectId: null, subjectId: null, goalId: null })
       setDue(null)
+      setSorting(false)
+      setSorted(false)
     }
   }, [captureOpen])
 
@@ -95,8 +103,30 @@ export function QuickCapture() {
     setKind(detectKind(text) ?? 'task')
   }, [text, kindTouched])
 
-  const submit = () => {
-    if (!text.trim() || save.isPending) return
+  const sort = async () => {
+    setSorting(true)
+    try {
+      const out = await sortCapture(aiApiKey, text, targets)
+      setKind(out.kind)
+      setKindTouched(true)
+      // A link keeps its URL on the title line; any other kind keeps it in the details.
+      setText(out.kind === 'link' && out.url ? `${out.title} ${out.url}` : [out.title, out.body, out.url].filter(Boolean).join('\n'))
+      setLinks({ projectId: out.projectId, subjectId: out.subjectId, goalId: out.goalId })
+      setDue(out.dueDate)
+    } catch (error) {
+      toast(`${error instanceof Error ? error.message : 'The AI could not sort this.'} Press ↵ to save it as it is.`)
+    } finally {
+      setSorting(false)
+      setSorted(true)
+    }
+  }
+
+  const submit = (skipSort = false) => {
+    if (!text.trim() || save.isPending || sorting) return
+    if (aiApiKey && !sorted && !skipSort) {
+      void sort()
+      return
+    }
     save.mutate(undefined, {
       onSuccess: (msg) => {
         setCaptureOpen(false)
@@ -118,7 +148,8 @@ export function QuickCapture() {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
-                submit()
+                // ⌘↵ saves straight away, without the AI.
+                submit(e.metaKey || e.ctrlKey)
               }
               // ⌘1–4 switches type without leaving the keyboard.
               if ((e.metaKey || e.ctrlKey) && ['1', '2', '3', '4'].includes(e.key)) {
@@ -160,6 +191,8 @@ export function QuickCapture() {
               {[
                 { label: 'Today', v: today() },
                 { label: 'Tomorrow', v: dayOffset(1) },
+                // A date the AI picked that is neither of the two above.
+                ...(due && due !== today() && due !== dayOffset(1) ? [{ label: relativeDay(due), v: due }] : []),
               ].map((o) => (
                 <button
                   key={o.label}
@@ -174,12 +207,13 @@ export function QuickCapture() {
         </div>
         <div className="flex items-center justify-between rounded-b-xl border-t border-border bg-muted/40 px-5 py-2.5">
           <span className="flex items-center gap-3 text-[11.5px] text-muted-foreground">
-            <span className="flex items-center gap-1"><Kbd>↵</Kbd> save</span>
+            <span className="flex items-center gap-1"><Kbd>↵</Kbd> {sorting ? 'sorting…' : aiApiKey && !sorted ? 'sort' : 'save'}</span>
+            {aiApiKey && !sorted && <span className="flex items-center gap-1"><Kbd>⌘↵</Kbd> save as is</span>}
             <span className="flex items-center gap-1"><Kbd>⇧↵</Kbd> new line</span>
             <span className="flex items-center gap-1"><Kbd>⌘1–4</Kbd> type</span>
           </span>
-          <Button size="sm" onClick={submit} disabled={!text.trim()}>
-            Capture
+          <Button size="sm" onClick={() => submit()} disabled={!text.trim() || sorting}>
+            {sorting ? 'Sorting…' : aiApiKey && !sorted ? 'Sort' : 'Capture'}
           </Button>
         </div>
       </DialogContent>
